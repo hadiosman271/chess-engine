@@ -7,6 +7,6 @@ add_executable(${PROJECT_NAME}
     src/common.h
     src/fen.c
     src/fen.h
-    src/move.c
-    src/move.h
+    src/valid_move.c
+    src/valid_move.h
 )
