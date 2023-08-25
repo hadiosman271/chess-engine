@@ -10,7 +10,10 @@
 #define SIZE 8
 
 extern char *piece_types;
-extern char turn;
 extern char board[SIZE][SIZE];
+extern char turn;
+extern char ep_square[3];
+extern char castling_rights[5];
+extern int half_moves, full_moves;
 
 #endif /* common.h */

@@ -12,8 +12,11 @@ void make_move(char *move);
 void print_board(void);
 
 char *piece_types = "rnbqkp";
-char turn = 'w';
 char board[SIZE][SIZE];
+char turn = 'w';
+char ep_square[3];
+char castling_rights[5];
+int half_moves, full_moves;
 
 int main(void)
 {
@@ -21,11 +24,11 @@ int main(void)
     char *fen_kid = "r1bq1rk1/ppp1npbp/3p1np1/3Pp3/2P1P3/2N2N2/PP2BPPP/R1BQ1RK1 w - - 1 9";
     char *fen = "8/4p3/8/8/8/8/4P3/8";
 
-    load_fen(fen);
-    make_move("e2e4");
-    make_move("e7e5");
-    make_move("e4e5");
+    load_fen(fen_startpos);
+
     print_board();
+    printf("%c %s %s %d %d\n",
+        turn, castling_rights, ep_square, half_moves, full_moves);
 
     return 0;
 }
