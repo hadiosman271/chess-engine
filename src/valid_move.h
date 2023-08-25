@@ -3,12 +3,14 @@
 
 #include "common.h"
 
-bool valid_rook_move(int rank_from, int file_from, int rank_to, int file_to);
-bool valid_knight_move(int rank_from, int file_from, int rank_to, int file_to);
-bool valid_bishop_move(int rank_from, int file_from, int rank_to, int file_to);
-bool valid_queen_move(int rank_from, int file_from, int rank_to, int file_to);
-bool valid_king_move(int rank_from, int file_from, int rank_to, int file_to);
-bool valid_pawn_move(int rank_from, int file_from, int rank_to, int file_to);
+int abs(int x);
+void get_coords(char *move, int *rank_from, int *file_from, int *rank_to, int *file_to);
+bool valid_rook_move(char *move);
+bool valid_knight_move(char *move);
+bool valid_bishop_move(char *move);
+bool valid_queen_move(char *move);
+bool valid_king_move(char *move);
+bool valid_pawn_move(char *move);
 bool valid_move(char *move);
 
 #endif /* valid_move.h */

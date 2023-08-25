@@ -6,8 +6,19 @@ int abs(int x)
     return x >= 0 ? x : -x;
 }
 
-bool valid_rook_move(int rank_from, int file_from, int rank_to, int file_to)
+void get_coords(char *move, int *rank_from, int *file_from, int *rank_to, int *file_to)
 {
+    *rank_from = move[1] - '0' - 1;
+    *file_from = move[0] - 'a';
+    *rank_to = move[3] - '0' - 1;
+    *file_to = move[2] - 'a';
+}
+
+bool valid_rook_move(char *move)
+{
+    int rank_from, file_from, rank_to, file_to;
+    get_coords(move, &rank_from, &file_from, &rank_to, &file_to);
+
     if (rank_from == rank_to)
     {
         int dir = file_to > file_from ? 1 : -1;
@@ -37,14 +48,20 @@ bool valid_rook_move(int rank_from, int file_from, int rank_to, int file_to)
     return true;
 }
 
-bool valid_knight_move(int rank_from, int file_from, int rank_to, int file_to)
+bool valid_knight_move(char *move)
 {
+    int rank_from, file_from, rank_to, file_to;
+    get_coords(move, &rank_from, &file_from, &rank_to, &file_to);
+
     return (abs(rank_to - rank_from) == 2 && abs(file_to - file_from) == 1)
         || (abs(rank_to - rank_from) == 1 && abs(file_to - file_from) == 2);
 }
 
-bool valid_bishop_move(int rank_from, int file_from, int rank_to, int file_to)
+bool valid_bishop_move(char *move)
 {
+    int rank_from, file_from, rank_to, file_to;
+    get_coords(move, &rank_from, &file_from, &rank_to, &file_to);
+
     if (abs(rank_to - rank_from) != abs(file_to - file_from))
     {
         return false;
@@ -64,19 +81,28 @@ bool valid_bishop_move(int rank_from, int file_from, int rank_to, int file_to)
     return true;
 }
 
-bool valid_queen_move(int rank_from, int file_from, int rank_to, int file_to)
+bool valid_queen_move(char *move)
 {
-    return valid_rook_move(rank_from, file_from, rank_to, file_to)
-        || valid_bishop_move(rank_from, file_from, rank_to, file_to);
+    int rank_from, file_from, rank_to, file_to;
+    get_coords(move, &rank_from, &file_from, &rank_to, &file_to);
+
+    return valid_rook_move(move)
+        || valid_bishop_move(move);
 }
 
-bool valid_king_move(int rank_from, int file_from, int rank_to, int file_to)
+bool valid_king_move(char *move)
 {
+    int rank_from, file_from, rank_to, file_to;
+    get_coords(move, &rank_from, &file_from, &rank_to, &file_to);
+
     return abs(rank_to - rank_from) <= 1 && abs(file_to - file_from) <= 1;
 }
 
-bool valid_pawn_move(int rank_from, int file_from, int rank_to, int file_to)
+bool valid_pawn_move(char *move)
 {
+    int rank_from, file_from, rank_to, file_to;
+    get_coords(move, &rank_from, &file_from, &rank_to, &file_to);
+
     switch (abs(rank_to - rank_from))
     {
     case 1:
@@ -88,15 +114,27 @@ bool valid_pawn_move(int rank_from, int file_from, int rank_to, int file_to)
             {
                 return false;
             }
-            // TODO: Promotion
+            else if (rank_to == (turn == 'w' ? 7 : 0) && move[4] == '\0')
+            {
+                return false;
+            }
             break;
         case 1:
             // Can capture diagonally forwards
             if (board[rank_to][file_to] == '\0')
             {
+                int rank_ep = ep_square[1] - '0' - 1;
+                int file_ep = ep_square[0] - 'a';
+
+                if (rank_to != rank_ep || file_to != file_ep)
+                {
+                    return false;
+                }
+            }
+            else if (rank_to == (turn == 'w' ? 7 : 0) && move[4] == '\0')
+            {
                 return false;
             }
-            // TODO: en passant
             break;
         default:
             return false;
@@ -136,7 +174,12 @@ bool valid_pawn_move(int rank_from, int file_from, int rank_to, int file_to)
 // Returns false if the move string is invalid
 bool valid_move(char *move)
 {
-    if (strlen(move) != 4)
+    int len = strlen(move);
+    if (len != 4 && len != 5)
+    {
+        return false;
+    }
+    if (len == 5 && (strchr(piece_types, move[4]) == NULL || move[4] == 'p'))
     {
         return false;
     }
@@ -148,10 +191,8 @@ bool valid_move(char *move)
     }
 
     // Get the coordinates from the string
-    int rank_from = move[1] - '0' - 1;
-    int file_from = move[0] - 'a';
-    int rank_to = move[3] - '0' - 1;
-    int file_to = move[2] - 'a';
+    int rank_from, file_from, rank_to, file_to;
+    get_coords(move, &rank_from, &file_from, &rank_to, &file_to);
 
     // If any coordinate is out of range
     if (rank_from < 0 || rank_from >= SIZE
@@ -187,12 +228,12 @@ bool valid_move(char *move)
     }
 
     // Check if move breaks the rules for its piece type
-    bool (*valid_piece_move[])(int, int, int, int) = {
+    bool (*valid_piece_move[])(char *) = {
         valid_rook_move, valid_knight_move, valid_bishop_move,
         valid_queen_move, valid_king_move, valid_pawn_move
     };
     char type = tolower(board[rank_from][file_from]);
-    return valid_piece_move[strchr(piece_types, type) - piece_types](rank_from, file_from, rank_to, file_to);
+    return valid_piece_move[strchr(piece_types, type) - piece_types](move);
 
     // TODO: Check if move leaves king in check
 }
